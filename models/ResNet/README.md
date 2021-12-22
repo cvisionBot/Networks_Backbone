@@ -17,7 +17,7 @@
 - Deep Networks low/mid/high 단계의 Feature 통합한다. 그리고 Multi-Layer의 end-to-end의 Classifier는 널리 퍼지게 하며, 각 Feature의 "Level"은 Layer 깊게 쌓으면서 보강될 수 있다.
 - 따라서 Depth는 중요하며, 결과를 이끈다.
 
-![1.JPG](Deep%20Residual%20Learning%20for%20Image%20Recognition%207354b7eeff774dcf9f7f9452d889cf1a/1.jpg)
+![1.JPG](C:/Users/Ace/Downloads/resnet/1.jpg)
 
 - Depth의 중요성에 입각하여, "Network에 Layer 추가하는 방향이 더 좋은가? 에 대한 질문이 따라오게 된다.
 - 이 질문에 답하기에 가장 큰 장애물은 `Vanishing/Exploding Gradients` 문제이다.
