@@ -62,9 +62,10 @@ $F(x) := H(x) - x$
 
 **Network Architectures**
 
+![3](https://user-images.githubusercontent.com/93169608/147097825-c3aec359-70fe-4083-ad98-9a0125c3979d.jpg)
+
 ![4](https://user-images.githubusercontent.com/93169608/147097872-0f0337e8-db91-4816-b51f-5b09e0ac1ce5.jpg)
 
-![3](https://user-images.githubusercontent.com/93169608/147097825-c3aec359-70fe-4083-ad98-9a0125c3979d.jpg)
 
 - ResNet (Residual Network) 구성하면서 2가지 Option 고려한다.
 1. Shortcut은 zero padded 하여 차원을 증가 시키며 수행된다. (Parameter 증가 없음)
