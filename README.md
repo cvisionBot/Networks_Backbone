@@ -1,2 +1,34 @@
-# backbones_factory
-Basic Classification Model Backbones
+# Networks Backbone
+PyTorch 기반 다양한 Network를 논문을 참고하여 구현하는 프로젝트입니다.
+
+## Implementations
+- Netowrk Backbone
+- Network Backbone Customizing
+- Network Block Modulize
+
+## 프로젝트 구조
+
+```
+backbones_factory
+├─ .gitignore
+├─ __README.md
+├─ models # Networks 구현
+│  ├─ MobileNetv1
+│  ├─ ResNet
+│  ├─ ResNeXt
+│  └─ layers
+├─ __init__.py
+├─ initialize.py
+
+```
+
+## Requirements
+`PyTorch` >= 1.10.1
+
+
+## Reference
+Networks
+- [ResNet: Deep Residual Learning for Image Recognition](https://arxiv.org/abs/1512.03385)
+  - [Torchvision Github](https://github.com/pytorch/vision/blob/main/torchvision/models/resnet.py)
+- [ResNext: Aggregated Residual Transformations for Deep Neural Networks](https://arxiv.org/abs/1611.05431)
+  - [official Github](https://github.com/facebookresearch/ResNeXt)
