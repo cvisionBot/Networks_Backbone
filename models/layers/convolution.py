@@ -1,3 +1,4 @@
+import torch
 from torch import nn
 
 def getPadding(kernel_size, mode='same'):
@@ -58,3 +59,39 @@ class DepthwiseConvBn(nn.Module):
     def forward(self, input):
         output = self.conv(input)
         return self.bn(output)
+    
+class Dense_Layer(nn.Module):
+    def __init__(self, in_channels, iter_cnt, growth_rate):
+        super(Dense_Layer, self).__init__()
+        self.iter = iter_cnt
+        self.bn_list = nn.ModuleList([])
+        self.conv_list = nn.ModuleList([])
+        self.relu = nn.ReLU()
+
+        self.in_channels = in_channels
+        for i in range(self.iter):
+            self.bn_list.append(nn.BatchNorm2d(num_features=self.in_channels))
+            self.conv_list.append(nn.Conv2d(in_channels=self.in_channels, out_channels=growth_rate, kernel_size=3, stride=1,
+                                                padding=1, dilation=1, groups=1, padding_mode='zeros'))
+            self.in_channels = self.in_channels + growth_rate
+
+    def forward(self, input):
+        outputs = input
+        for bn, cn in zip(self.bn_list, self.conv_list):
+            output = bn(outputs)
+            output = self.relu(output)
+            output = cn(output)
+            outputs = torch.cat([outputs, output], axis=1)
+        return outputs
+
+
+class Transition_Layer(nn.Module):
+    def __init__(self, in_channels, out_channels):
+        super(Transition_Layer, self).__init__()
+        self.conv = Conv2dBn(in_channels=in_channels, out_channels=out_channels, kernel_size=1)
+        self.avg_pool = nn.AvgPool2d(kernel_size=2, stride=2)
+
+    def forward(self, input):
+        output = self.conv(input)
+        output = self.avg_pool(output)
+        return output

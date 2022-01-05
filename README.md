@@ -32,3 +32,7 @@ Networks
   - [Torchvision Github](https://github.com/pytorch/vision/blob/main/torchvision/models/resnet.py)
 - [ResNext: Aggregated Residual Transformations for Deep Neural Networks](https://arxiv.org/abs/1611.05431)
   - [official Github](https://github.com/facebookresearch/ResNeXt)
+- [MobileNetv1: Efficient Convolutional Neural Networks for Mobile Vision Applications](https://arxiv.org/abs/1704.04861)
+  - [Torchvision Github](https://github.com/pytorch/vision/blob/main/torchvision/models/mobilenet.py)
+- [MobileNetv1: Efficient Convolutional Neural Networks for Mobile Vision Applications](https://arxiv.org/abs/1608.06993)
+  - [Official Github](https://github.com/liuzhuang13/DenseNet)
