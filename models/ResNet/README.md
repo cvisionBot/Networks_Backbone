@@ -28,7 +28,6 @@
 
 $F(x) := H(x) - x$
 
-
 ![Figure2](./src/2.jpg)
 
 - 해당 공식의 경우 `Shortcut Conntection` 이해할 수 있다. 이는 하나 또는 여러 Layer 건너 뛴다.
@@ -64,12 +63,9 @@ $F(x) := H(x) - x$
 
 **Network Architectures**
 
-
 ![Table1](./src/4.jpg)
 
 ![Figure3](./src/3.jpg)
-
-
 
 - ResNet (Residual Network) 구성하면서 2가지 Option 고려한다.
 1. Shortcut은 zero padded 하여 차원을 증가 시키며 수행된다. (Parameter 증가 없음)
