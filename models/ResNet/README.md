@@ -67,7 +67,6 @@ $F(x) := H(x) - x$
 
 ![Figure3](./src/3.jpg)
 
-
 - ResNet (Residual Network) 구성하면서 2가지 Option 고려한다.
 1. Shortcut은 zero padded 하여 차원을 증가 시키며 수행된다. (Parameter 증가 없음)
 2. Dimension Maching 하기 위해 Projection 사용한다. (1 x 1 convolution)
@@ -84,7 +83,6 @@ $F(x) := H(x) - x$
 **Deeper Bottlenect Architectures**
 
 ![Figure5](./src/5.jpg)
-
 
 - Training-Time 인하여 Building Block → `BottleNeck` 디자인하였다.
 - 해당 `1 x 1 Convolution` 차원을 줄이고 늘리는 기능만 담당한다. 일반 3 x 3 연산과 동일한 Complexity 갖는다.
