@@ -66,8 +66,8 @@ class _DenseNet121(nn.Module):
         pred = self.classification(s4)
         b, c, _, _ = pred.size()
         pred = pred.view(b, c)
-        stages = [s1, s2, s3, s4]
-        return {'stage':stages, 'pred':pred}
+        return {'pred':pred}
+    
 
 
 class _DenseNet169(nn.Module):
@@ -93,16 +93,16 @@ class _DenseNet169(nn.Module):
         )
 
     def forward(self, input):
-        stem_out = self.denseStem(input)
-        s1 = self.layer1(stem_out)
+        stem = self.denseStem(input)
+        s1 = self.layer1(stem)
         s2 = self.layer2(s1)
         s3 = self.layer3(s2)
         s4 = self.layer4(s3)
         pred = self.classification(s4)
         b, c, _, _ = pred.size()
         pred = pred.view(b, c)
-        stages = [s1, s2, s3, s4]
-        return {'stage':stages, 'pred':pred}
+        return {'pred':pred}
+    
     
     
 class _DenseNet201(nn.Module):
@@ -128,16 +128,16 @@ class _DenseNet201(nn.Module):
         )
 
     def forward(self, input):
-        stem_out = self.denseStem(input)
-        s1 = self.layer1(stem_out)
+        stem = self.denseStem(input)
+        s1 = self.layer1(stem)
         s2 = self.layer2(s1)
         s3 = self.layer3(s2)
         s4 = self.layer4(s3)
         pred = self.classification(s4)
         b, c, _, _ = pred.size()
         pred = pred.view(b, c)
-        stages = [s1, s2, s3, s4]
-        return {'stage':stages, 'pred':pred}
+        return {'pred':pred}
+    
     
 
 class _DenseNet264(nn.Module):
@@ -163,16 +163,16 @@ class _DenseNet264(nn.Module):
         )
 
     def forward(self, input):
-        stem_out = self.denseStem(input)
-        s1 = self.layer1(stem_out)
+        stem = self.denseStem(input)
+        s1 = self.layer1(stem)
         s2 = self.layer2(s1)
         s3 = self.layer3(s2)
         s4 = self.layer4(s3)
         pred = self.classification(s4)
         b, c, _, _ = pred.size()
         pred = pred.view(b, c)
-        stages = [s1, s2, s3, s4]
-        return {'stage':stages, 'pred':pred}
+        return {'pred':pred}
+    
 
 def DenseNet(in_channels, classes=1000, varient=121):
     if varient == 121:

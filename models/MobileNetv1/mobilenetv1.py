@@ -50,8 +50,8 @@ class _MobileNetv1(nn.Module):
         )
     
     def forward(self, input):
-        stem_out = self.mobilenetStem(input)      
-        s1 = self.layer1(stem_out)
+        stem = self.mobilenetStem(input)      
+        s1 = self.layer1(stem)
         s2 = self.layer2(s1)
         s3 = self.layer3(s2)
         s4 = self.layer4(s3)
@@ -59,8 +59,8 @@ class _MobileNetv1(nn.Module):
         pred = self.classification(s5)
         b, c, _, _ = pred.size()
         pred = pred.view(b, c)
-        stages = [s1, s2, s3, s4, s5]
-        return {'stage':stages, 'pred':pred}
+        return {'pred':pred}
+    
 
     # confing in_channels, kernel_size, output_ch, stride
     def make_layers(self, cfg):
