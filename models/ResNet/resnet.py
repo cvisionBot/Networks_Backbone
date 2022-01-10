@@ -32,12 +32,9 @@ class Make_Layers(nn.Module):
         input_ch = cfg[0]
         for i in range(cfg[-1]):
             if i == 0:
-                layer = Residual_Block(in_channels=self.pre_ch, kernel_size=cfg[1], out_channels=cfg[2])
+                layer = Residual_Block(in_channels=self.pre_ch, kernel_size=cfg[1], out_channels=cfg[2], stride=cfg[3])
             else:
-                if cfg[-1] - i == 1:
-                    layer = Residual_Block(in_channels=input_ch, kernel_size=cfg[1], out_channels=cfg[2], stride=cfg[3])
-                else:
-                    layer = Residual_Block(in_channels=input_ch, kernel_size=cfg[1], out_channels=cfg[2])
+                layer = Residual_Block(in_channels=input_ch, kernel_size=cfg[1], out_channels=cfg[2])
             layers.append(layer)
             input_ch = layer.get_channel()
         return nn.Sequential(*layers)
@@ -58,12 +55,9 @@ class Make_LiteLayer(nn.Module):
         input_ch = cfg[0]
         for i in range(cfg[-1]):
             if i == 0:
-                layer = Residual_LiteBlock(in_channels=self.pre_ch, kernel_size=cfg[1], out_channels=cfg[2])
+                layer = Residual_LiteBlock(in_channels=self.pre_ch, kernel_size=cfg[1], out_channels=cfg[2], stride=cfg[3])
             else:
-                if cfg[-1] - i == 1:
-                    layer = Residual_LiteBlock(in_channels=input_ch, kernel_size=cfg[1], out_channels=cfg[2], stride=cfg[3])
-                else:
-                    layer = Residual_LiteBlock(in_channels=input_ch, kernel_size=cfg[1], out_channels=cfg[2])
+                layer = Residual_LiteBlock(in_channels=input_ch, kernel_size=cfg[1], out_channels=cfg[2])
             layers.append(layer)
             input_ch = layer.get_channel()
         return nn.Sequential(*layers)

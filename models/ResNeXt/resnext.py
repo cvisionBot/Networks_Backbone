@@ -1,4 +1,5 @@
 from ..layers.convolution import Conv2dBnAct, Conv2dBn
+from ..layers.blocks import ResNeXt_Block
 from ..initialize import weight_initialize
 
 import torch
@@ -15,27 +16,6 @@ class ResNeXtStem(nn.Module):
         output = self.max_pool(output)
         return output
 
-class ResNeXt_Block(nn.Module):
-    def __init__(self, in_channels, kernel_size, out_channels, stride=1, cardinarity=32):
-        super(ResNeXt_Block, self).__init__()
-        self.cardinarity = cardinarity
-        self.out_channels = out_channels
-        self.res_conv1 = Conv2dBnAct(in_channels=in_channels, out_channels=in_channels, kernel_size=1, stride=1)
-        self.group_conv = Conv2dBnAct(in_channels=in_channels, out_channels=in_channels, kernel_size=kernel_size, stride=1, dilation=1, groups=self.cardinarity)
-        self.res_conv2 = Conv2dBnAct(in_channels=in_channels, out_channels=out_channels, kernel_size=1, stride=stride)
-        self.identity = nn.Conv2d(in_channels=in_channels, out_channels=out_channels, kernel_size=1, stride=stride)
-
-    def forward(self, input):
-        output = self.res_conv1(input)
-        output = self.group_conv(output)
-        output = self.res_conv2(output)
-        if input.size() != output.size():
-            input = self.identity(input)
-        output = input + output
-        return output
-    
-    def get_channel(self):
-        return self.out_channels
 
 class _ResNeXt50(nn.Module):
     def __init__(self, in_channels, classes):
@@ -74,12 +54,9 @@ class _ResNeXt50(nn.Module):
         input_ch = cfg[0]
         for i in range(cfg[-1]):
             if i == 0:
-                layer=ResNeXt_Block(in_channels=self.pre_ch, kernel_size=cfg[1], out_channels=cfg[2])
+                layer=ResNeXt_Block(in_channels=self.pre_ch, kernel_size=cfg[1], out_channels=cfg[2], stride=cfg[3])
             else:
-                if cfg[-1] - i == 1:
-                    layer = ResNeXt_Block(in_channels=input_ch, kernel_size=cfg[1], out_channels=cfg[2], stride=cfg[3])
-                else:
-                    layer = ResNeXt_Block(in_channels=input_ch, kernel_size=cfg[1], out_channels=cfg[2])
+                layer = ResNeXt_Block(in_channels=input_ch, kernel_size=cfg[1], out_channels=cfg[2])
             layers.append(layer)
             input_ch = layer.get_channel()
         return nn.Sequential(*layers)
