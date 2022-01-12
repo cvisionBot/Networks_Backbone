@@ -20,23 +20,23 @@ class _MobileNetv2(nn.Module):
         self.stage_channels = []
         self.mobilenetStem = MobileNetStem(in_channels=in_channels, out_channels=32)
 
-        # confing in_channels, out_channels, expansion_ratio, stride
+        # confing in_channels, kernel_size, out_channels, expansion_ratio, stride
         layer1 = [ 
-            [32, 16, 1, 1],
-            [16, 24, 6, 2], [24, 24, 6, 1]
+            [32, 3, 16, 1, 1],
+            [16, 3, 24, 6, 2], [24, 3, 24, 6, 1]
         ]
         layer2 = [
-            [24, 32, 6, 2], [32, 32, 6, 1], [32, 32, 6, 1]
+            [24, 3, 32, 6, 2], [32, 3, 32, 6, 1], [32, 3, 32, 6, 1]
         ]
         layer3 = [ 
-            [32, 64, 6, 2], [64, 64, 6, 1], [64, 64, 6, 1], [64, 64, 6, 1],
+            [32, 3, 64, 6, 2], [64, 3, 64, 6, 1], [64, 3, 64, 6, 1], [64, 3, 64, 6, 1],
         ]
         layer4 = [
-            [64, 96, 6, 2], [96, 96, 6, 1], [96, 96, 6, 1],
-            [96, 160, 6, 1], [160, 160, 6, 1], [160, 160, 6, 1]
+            [64, 3, 96, 6, 2], [96, 3, 96, 6, 1], [96, 3, 96, 6, 1],
+            [96, 3, 160, 6, 1], [160, 3, 160, 6, 1], [160, 3, 160, 6, 1]
         ]
         layer5 = [
-            [160, 320, 1, 1]
+            [160, 3, 320, 1, 1]
         ]
         self.layer1 = self.make_layers(layer1)
         self.layer2 = self.make_layers(layer2)
@@ -62,8 +62,8 @@ class _MobileNetv2(nn.Module):
     
     def make_layers(self, layers_configs):
         layers = []
-        for i, o, exp, stride in layers_configs:
-            layers.append(InvertedResidualBlock(in_channels=i, out_channels=o, exp=exp, stride=stride))
+        for i, k, o, exp, stride in layers_configs:
+            layers.append(InvertedResidualBlock(in_channels=i, kernel_size=k, out_channels=o, exp=exp, stride=stride))
         return nn.Sequential(*layers)
 
 

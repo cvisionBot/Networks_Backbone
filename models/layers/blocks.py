@@ -2,6 +2,7 @@ from ..layers.convolution import Conv2dBnAct, DepthwiseConvBnAct
 from ..layers.convolution import Conv2dBn, DepthwiseConvBn
 from ..layers.convolution import Dense_Layer, Transition_Layer
 from ..layers.attention import SE_Block
+from ..layers.activation import HardSwish
 
 import torch
 from torch import nn
@@ -114,23 +115,34 @@ class Dense_Block(nn.Module):
     
     
 class InvertedResidualBlock(nn.Module): # expansion ratio = t
-    def __init__(self, in_channels, out_channels, exp, stride):
+    def __init__(self, in_channels, kernel_size, out_channels, exp, stride, SE=False, NL='RE'):
         super(InvertedResidualBlock, self).__init__()
-        self.stride = stride
         if exp == 0:
             exp = 1
         self.exp = exp
+        self.stride = stride
+        self.se_block = SE
+        if NL == 'RE':
+            self.act = nn.ReLU6()
+        else:
+            self.act = HardSwish()
         self.conv1 = Conv2dBnAct(in_channels=in_channels,out_channels=in_channels * self.exp, kernel_size=1, stride=1, dilation=1, 
-                                    groups=1, padding_mode='zeros', act=nn.ReLU6())
-        self.dconv = DepthwiseConvBnAct(in_channels=in_channels * self.exp, kernel_size=3, stride=self.stride,
-                                    dilation=1, padding_mode='zeros', act=nn.ReLU6())
+                                    groups=1, padding_mode='zeros', act=self.act)
+        self.dconv = DepthwiseConvBnAct(in_channels=in_channels * self.exp, kernel_size=kernel_size, stride=self.stride,
+                                    dilation=1, padding_mode='zeros', act=self.act)
         self.conv2 = Conv2dBn(in_channels=in_channels * self.exp, out_channels=out_channels, kernel_size=1)
+        self.se = SE_Block(in_channels=in_channels * self.exp)
         self.identity = nn.Conv2d(in_channels=in_channels, out_channels=out_channels, kernel_size=1, stride=stride)
         
+
     def forward(self, input):
         output = self.conv1(input)
         output = self.dconv(output)
-        output = self.conv2(output)
+        if self.se_block:
+            se = self.se(output)
+            output = self.conv2(se)
+        else:
+            output = self.conv2(output)
         if self.stride == 1:
             input = self.identity(input)
             output = input + output        
