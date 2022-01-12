@@ -44,3 +44,7 @@ Networks
   - [Official Github](https://github.com/xiaolai-sqlai/mobilenetv3)
 - [GhostNet: More Features from Cheap Operations](https://arxiv.org/abs/1911.11907v2)
   - [Torchvision Github](https://github.com/osmr/imgclsmob/blob/c03fa67de3c9e454e9b6d35fe9cbb6b15c28fda7/pytorch/pytorchcv/models/ghostnet.py)
+- [RegNet: Designing Network Design Spaces](https://arxiv.org/abs/2003.13678)
+  - [Official Github](https://github.com/facebookresearch/pycls)
+- [EfficientNet: Rethinking Model Scaling for Convolutional Neural Networks](https://arxiv.org/abs/1905.11946v5)
+  - [Official Github](https://github.com/lukemelas/EfficientNet-PyTorch)
