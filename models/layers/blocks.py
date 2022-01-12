@@ -4,10 +4,11 @@ from ..layers.convolution import Dense_Layer, Transition_Layer
 from ..layers.attention import SE_Block
 from ..layers.activation import HardSwish
 
+import math
 import torch
 from torch import nn
 
-
+# ResNet Module
 class Residual_Block(nn.Module):
     def __init__(self, in_channels, kernel_size, out_channels, stride=1, SE=False):
         super(Residual_Block, self).__init__()
@@ -33,7 +34,7 @@ class Residual_Block(nn.Module):
     def get_channel(self):
         return self.out_channels
     
-    
+# ResNet Lite Module    
 class Residual_LiteBlock(nn.Module):
     def __init__(self, in_channels, kernel_size, out_channels, stride=1):
         super(Residual_LiteBlock, self).__init__()
@@ -53,7 +54,7 @@ class Residual_LiteBlock(nn.Module):
     def get_channel(self):
         return self.out_channels
 
-
+# ResNeXt Module
 class ResNeXt_Block(nn.Module):
     def __init__(self, in_channels, kernel_size, out_channels, stride=1, cardinarity=32, SE=False):
         super(ResNeXt_Block, self).__init__()
@@ -80,7 +81,7 @@ class ResNeXt_Block(nn.Module):
     def get_channel(self):
         return self.out_channels
     
-
+# MobileNetv1 Module
 class DepthwiseSeparable_Block(nn.Module):
     def __init__(self, in_channels, kernel_size, out_channels, stride):
         super(DepthwiseSeparable_Block, self).__init__()
@@ -93,7 +94,7 @@ class DepthwiseSeparable_Block(nn.Module):
         output = self.pointwise(output)
         return output
     
-    
+# DenseNet Module
 class Dense_Block(nn.Module):
     def __init__(self, in_channels, iter_cnt, transition, growth_rate=32):
         super(Dense_Block, self).__init__()
@@ -113,7 +114,7 @@ class Dense_Block(nn.Module):
         cat_channels = in_channels + (growth_rate * layer_len)
         return cat_channels
     
-    
+# MobileNetv2 ~ v3 Module
 class InvertedResidualBlock(nn.Module): # expansion ratio = t
     def __init__(self, in_channels, kernel_size, out_channels, exp, stride, SE=False, NL='RE'):
         super(InvertedResidualBlock, self).__init__()
@@ -146,4 +147,38 @@ class InvertedResidualBlock(nn.Module): # expansion ratio = t
         if self.stride == 1:
             input = self.identity(input)
             output = input + output        
+        return output
+
+# GhostNet Module
+class G_bneck(nn.Module):
+    def __init__(self, in_channels, kernel_size, out_channels, exp, stride, SE, ratio=2):
+        super(G_bneck, self).__init__()
+        self.stride=stride
+        self.use_se = SE
+        self.gmodule1 = G_module(in_channels=in_channels, kernel_size=1, out_channels=exp, stride=1)
+        self.gmodule2 = G_module(in_channels=exp, kernel_size=1, out_channels=out_channels, stride=1)
+        self.dconv = DepthwiseConvBn(in_channels=exp, kernel_size=kernel_size, stride=self.stride)
+        self.se_block = SE_Block(in_channels=exp ,reduction_ratio=16)
+
+    def forward(self, input):
+        output = self.gmodule1(input)
+        if self.stride == 2:
+            output = self.dconv(output)
+        if self.use_se:
+            output = self.se_block(output)
+        output = self.gmodule2(output)
+        return output 
+
+
+class G_module(nn.Module):
+    def __init__(self, in_channels, kernel_size, out_channels, stride, ratio=2):
+        super(G_module, self).__init__()
+        self.init_channels = math.ceil(out_channels//ratio)
+        self.conv = Conv2dBnAct(in_channels=in_channels, out_channels=self.init_channels, kernel_size=kernel_size, stride=stride)
+        self.dconv = DepthwiseConvBn(in_channels=self.init_channels, kernel_size=3, stride=stride)
+
+    def forward(self, input):
+        output = self.conv(input)
+        depth_output = self.dconv(output)
+        output = torch.cat([output, depth_output], axis=1)
         return output

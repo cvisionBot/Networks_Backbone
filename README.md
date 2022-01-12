@@ -40,3 +40,7 @@ Networks
   - [Torchvision Github](https://github.com/pytorch/vision/blob/6db1569c89094cf23f3bc41f79275c45e9fcb3f3/torchvision/models/mobilenet.py)
 - [SENet: Squeeze-and-Excitation Networks](https://arxiv.org/abs/1709.01507)
   - [Torchvision Github](https://github.com/osmr/imgclsmob/blob/68335927ba27f2356093b985bada0bc3989836b1/pytorch/pytorchcv/models/senet.py)
+- [MobileNetv3: Searching for MobileNetv3](https://arxiv.org/abs/1905.02244v5)
+  - [Official Github](https://github.com/xiaolai-sqlai/mobilenetv3)
+- [GhostNet: More Features from Cheap Operations](https://arxiv.org/abs/1911.11907v2)
+  - [Torchvision Github](https://github.com/osmr/imgclsmob/blob/c03fa67de3c9e454e9b6d35fe9cbb6b15c28fda7/pytorch/pytorchcv/models/ghostnet.py)
