@@ -182,3 +182,81 @@ class G_module(nn.Module):
         depth_output = self.dconv(output)
         output = torch.cat([output, depth_output], axis=1)
         return output
+
+# RegNet Module
+class XBlock(nn.Module):
+    def __init__(self, in_channels, block_width, bottleneck_ratio, stride, groups=1):
+        super(XBlock, self).__init__()
+        self.B_conv1 = Conv2dBnAct(in_channels, int(block_width / bottleneck_ratio), 1)
+        self.B_conv2 = Conv2dBnAct(int(block_width / bottleneck_ratio), int(block_width / bottleneck_ratio), 3, stride, 1, groups);
+        self.B_conv3 = Conv2dBnAct(int(block_width / bottleneck_ratio), block_width, 1)
+        self.se_block = SE_Block(int(block_width / bottleneck_ratio))
+        self.identity = Conv2dBnAct(in_channels, block_width, 1, stride)
+
+    def forward(self, input):
+        output = self.B_conv1(input)
+        output = self.B_conv2(output)
+        output = self.B_conv3(output)
+        if input.size() != output.size():
+            input = self.identity(input)
+        return output
+
+class YBlock(nn.Module):
+    def __init__(self, in_channels, block_width, bottleneck_ratio, stride, groups=1):
+        super(YBlock, self).__init__()
+        self.B_conv1 = Conv2dBnAct(in_channels, int(block_width / bottleneck_ratio), 1)
+        self.B_conv2 = Conv2dBnAct(int(block_width / bottleneck_ratio), int(block_width / bottleneck_ratio), 3, stride, 1, groups);
+        self.B_conv3 = Conv2dBnAct(int(block_width / bottleneck_ratio), block_width, 1)
+        self.se_block = SE_Block(int(block_width / bottleneck_ratio))
+        self.identity = Conv2dBnAct(in_channels, block_width, 1, stride)
+
+    def forward(self, input):
+        output = self.B_conv1(input)
+        output = self.B_conv2(output)
+        output = self.se_block(output)
+        output = self.B_conv3(output)
+        if input.size() != output.size():
+            input = self.identity(input)
+        return output
+
+# MNasNet EfficientNet Module
+class MBConv1(nn.Module):
+    def __init__(self, in_channels, kernel_size, out_channels, stride):
+        super(MBConv1, self).__init__()
+        self.conv_act = Conv2dBnAct(in_channels=in_channels, out_channels=in_channels, kernel_size=1, stride=1, dilation=1,
+                                    groups=1, padding_mode='zeros', act=Swish()) 
+        self.dconv = DepthwiseConvBnAct(in_channels=in_channels, kernel_size=kernel_size, stride=1, dilation=1,
+                                    padding_mode='zeros', act=Swish())
+        self.se = SE_Block(in_channels=in_channels)
+        self.conv_bn = Conv2dBn(in_channels=in_channels, out_channels=out_channels, kernel_size=1, stride=stride)
+        self.identity=nn.Conv2d(in_channels=in_channels, out_channels=out_channels, kernel_size=1, stride=stride)
+    
+    def forward(self, input):
+        output = self.conv_act(input)
+        output = self.dconv(output)
+        output = self.se(output)
+        output = self.conv_bn(output)
+        if input.size() != output.size():
+            input = self.identity(input)
+        output = input + output
+        return output
+
+
+class MBConv6(nn.Module):
+    def __init__(self, in_channels, kernel_size, out_channels, stride):
+        super(MBConv6, self).__init__()
+        self.conv_act = Conv2dBnAct(in_channels=in_channels, out_channels=in_channels, kernel_size=1, stride=1,
+                                    groups=1, padding_mode='zeros', act=Swish())
+        self.dconv = DepthwiseConvBnAct(in_channels=in_channels, kernel_size=kernel_size, stride=1, dilation=1,
+                                    padding_mode='zeros', act=Swish())
+        self.conv_bn = Conv2dBn(in_channels=in_channels, out_channels=out_channels, kernel_size=1, stride=stride)
+        self.identity=nn.Conv2d(in_channels=in_channels, out_channels=out_channels, kernel_size=1, stride=stride)
+    
+    def forward(self, input):
+        output = self.conv_act(input)
+        output = self.dconv(output)
+        output = self.conv_bn(output)
+        if input.size() != output.size():
+            input = self.identity(input)
+        output = input + output
+        return output
