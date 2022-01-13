@@ -60,9 +60,9 @@ class DepthwiseConvBn(nn.Module):
         output = self.conv(input)
         return self.bn(output)
     
-class Dense_Layer(nn.Module):
+class DenseLayer(nn.Module):
     def __init__(self, in_channels, iter_cnt, growth_rate):
-        super(Dense_Layer, self).__init__()
+        super(DenseLayer, self).__init__()
         self.iter = iter_cnt
         self.bn_list = nn.ModuleList([])
         self.conv_list = nn.ModuleList([])
@@ -85,9 +85,9 @@ class Dense_Layer(nn.Module):
         return outputs
 
 
-class Transition_Layer(nn.Module):
+class TransitionLayer(nn.Module):
     def __init__(self, in_channels, out_channels):
-        super(Transition_Layer, self).__init__()
+        super(TransitionLayer, self).__init__()
         self.conv = Conv2dBn(in_channels=in_channels, out_channels=out_channels, kernel_size=1)
         self.avg_pool = nn.AvgPool2d(kernel_size=2, stride=2)
 

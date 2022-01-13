@@ -1,6 +1,6 @@
 from ..layers.convolution import Conv2dBnAct, DepthwiseConvBnAct
 from ..layers.convolution import Conv2dBn, DepthwiseConvBn
-from ..layers.convolution import Dense_Layer, Transition_Layer
+from ..layers.convolution import DenseLayer, TransitionLayer
 from ..layers.attention import SE_Block
 from ..layers.activation import HardSwish, Swish
 
@@ -99,8 +99,8 @@ class Dense_Block(nn.Module):
     def __init__(self, in_channels, iter_cnt, transition, growth_rate=32):
         super(Dense_Block, self).__init__()
         self.transition = transition
-        self.dense_layer = Dense_Layer(in_channels=in_channels, iter_cnt=iter_cnt, growth_rate=growth_rate)
-        self.transition_layaer = Transition_Layer(in_channels=self.calc_channels(in_channels, growth_rate, iter_cnt),
+        self.dense_layer = DenseLayer(in_channels=in_channels, iter_cnt=iter_cnt, growth_rate=growth_rate)
+        self.transition_layaer = TransitionLayer(in_channels=self.calc_channels(in_channels, growth_rate, iter_cnt),
                                                     out_channels=self.calc_channels(in_channels, growth_rate, iter_cnt))
 
     def forward(self, input):
