@@ -42,6 +42,8 @@ Networks
   - [Torchvision Github](https://github.com/osmr/imgclsmob/blob/68335927ba27f2356093b985bada0bc3989836b1/pytorch/pytorchcv/models/senet.py)
 - [MobileNetv3: Searching for MobileNetv3](https://arxiv.org/abs/1905.02244v5)
   - [Official Github](https://github.com/xiaolai-sqlai/mobilenetv3)
+- [MnasNet: Platform-Aware Neural Architecture Search for Mobile](https://arxiv.org/abs/1807.11626v3)
+  - [Torchvision Github](https://github.com/osmr/imgclsmob/blob/c03fa67de3c9e454e9b6d35fe9cbb6b15c28fda7/pytorch/pytorchcv/models/mnasnet.py)
 - [GhostNet: More Features from Cheap Operations](https://arxiv.org/abs/1911.11907v2)
   - [Torchvision Github](https://github.com/osmr/imgclsmob/blob/c03fa67de3c9e454e9b6d35fe9cbb6b15c28fda7/pytorch/pytorchcv/models/ghostnet.py)
 - [RegNet: Designing Network Design Spaces](https://arxiv.org/abs/2003.13678)

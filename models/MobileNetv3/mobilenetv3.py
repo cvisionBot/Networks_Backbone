@@ -7,9 +7,9 @@ from ..initialize import weight_initialize
 import torch
 from torch import nn
 
-class MobileNet_stem(nn.Module):
+class MobileNetStem(nn.Module):
     def __init__(self, in_channels, out_channels):
-        super(MobileNet_stem, self).__init__()
+        super(MobileNetStem, self).__init__()
         self.conv = Conv2dBnAct(in_channels=in_channels, out_channels=out_channels, kernel_size=3, stride=2, dilation=1,
                                 groups=1, padding_mode='zeros', act=HardSwish())
     
@@ -37,7 +37,7 @@ class _MobileNetv3_Large(nn.Module):
     def __init__(self, in_channels, classes):
         super(_MobileNetv3_Large, self).__init__()
         self.stage_channels = []
-        self.stem_block = MobileNet_stem(in_channels=in_channels, out_channels=16)
+        self.mobilenetStem = MobileNetStem(in_channels=in_channels, out_channels=16)
 
         # config in_channels, kernel_size, out_channels, exp, stride, SE, NL
         layer1 = [ # 112 x 112 resolution
@@ -69,8 +69,8 @@ class _MobileNetv3_Large(nn.Module):
             nn.Conv2d(1280, classes, 1)
         )
     def forward(self, input):
-        stem_out = self.stem_block(input)
-        s1 = self.layer1(stem_out)
+        stem = self.mobilenetStem(input)
+        s1 = self.layer1(stem)
         s2 = self.layer2(s1)
         s3 = self.layer3(s2)
         s4 = self.layer4(s3)
@@ -84,7 +84,7 @@ class _MobileNetv3_Small(nn.Module):
     def __init__(self, in_channels, classes):
         super(_MobileNetv3_Small, self).__init__()
         self.stage_channels = []
-        self.stem_block = MobileNet_stem(in_channels=in_channels, out_channels=16)
+        self.mobilenetStem = MobileNetStem(in_channels=in_channels, out_channels=16)
      # config in_channels, kernel_size, out_channels, exp, SE, NL, stride
         layer1 = [ # 112 x 112 resolution
             [16, 3, 16, 16, 2, True, 'RE']
@@ -114,8 +114,8 @@ class _MobileNetv3_Small(nn.Module):
             nn.Conv2d(1280, classes, 1)
         )
     def forward(self, input):
-        stem_out = self.stem_block(input)
-        s1 = self.layer1(stem_out)
+        stem = self.mobilenetStem(input)
+        s1 = self.layer1(stem)
         s2 = self.layer2(s1)
         s3 = self.layer3(s2)
         s4 = self.layer4(s3)
