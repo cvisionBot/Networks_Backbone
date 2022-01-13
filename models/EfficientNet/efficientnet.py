@@ -1,9 +1,21 @@
 from ..layers.convolution import Conv2dBnAct
 from ..layers.blocks import MBConv1, MBConv6
+from ..layers.activation import Swish
 from ..initialize import weight_initialize
 
 import torch
 from torch import nn
+
+
+class EfficientStem(nn.Module):
+    def __init__(self, in_channels, out_channels):
+        super(EfficientStem, self).__init__()
+        self.conv = Conv2dBnAct(in_channels=in_channels, out_channels=out_channels, kernel_size=3, stride=2, dilation=1,
+                                    groups=1, padding_mode='zeros', act=Swish())
+
+    def forward(self, input):
+        return self.conv(input)
+
 
 class Make_Layers(nn.Module):
     def __init__(self, layers_configs):
@@ -20,18 +32,8 @@ class Make_Layers(nn.Module):
             if b == 1:
                 layers.append(MBConv1(in_channels=i, kernel_size=k, out_channels=o, stride=s))
             else:
-                layers.append(MBConv6(in_channels=i, kernel_size=k, out_channels=o, stride=s))
+                layers.append(MBConv6(in_channels=i, kernel_size=k, out_channels=o, stride=s, act=Swish()))
         return nn.Sequential(*layers)
-
-
-class EfficientStem(nn.Module):
-    def __init__(self, in_channels, out_channels):
-        super(EfficientStem, self).__init__()
-        self.conv = Conv2dBnAct(in_channels=in_channels, out_channels=out_channels, kernel_size=3, stride=2, dilation=1,
-                                    groups=1, padding_mode='zeros', act=Swish())
-
-    def forward(self, input):
-        return self.conv(input)
 
 
 class _EfficientNet_B0(nn.Module):

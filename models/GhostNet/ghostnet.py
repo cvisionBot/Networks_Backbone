@@ -6,9 +6,9 @@ import math
 import torch
 from torch import nn
 
-class GhostNet_stem(nn.Module):
+class GhostNetStem(nn.Module):
     def __init__(self, in_channels, out_channels):
-        super(GhostNet_stem, self).__init__()
+        super(GhostNetStem, self).__init__()
         self.conv = Conv2dBnAct(in_channels=in_channels, out_channels=out_channels, kernel_size=3, stride=2)
 
     def forward(self, input):
@@ -18,7 +18,7 @@ class GhostNet_stem(nn.Module):
 class _GhostNet(nn.Module):
     def __init__(self, in_channels, classes):
         super(_GhostNet, self).__init__()
-        self.stem_block = GhostNet_stem(in_channels, out_channels=16)
+        self.ghostnetStem = GhostNetStem(in_channels, out_channels=16)
 
         # config = in_channels, kernel_size, out_channels, exp, stride, SE
         layer1 = [ 
@@ -52,8 +52,8 @@ class _GhostNet(nn.Module):
         )
 
     def forward(self, input):
-        stem_out = self.stem_block(input)
-        s1 = self.layer1(stem_out) 
+        stem = self.ghostnetStem(input)
+        s1 = self.layer1(stem) 
         s2 = self.layer2(s1)
         s3 = self.layer3(s2)
         s4 = self.layer4(s3)
