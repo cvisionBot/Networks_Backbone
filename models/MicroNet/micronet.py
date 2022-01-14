@@ -15,6 +15,20 @@ class MicroNetStem(nn.Module):
         return output
 
 
+class Make_Layers(nn.Module):
+    def __init__(self, layers_configs):
+        super(Make_Layers, self).__init__()
+        self.layers_configs = layers.configs
+        self.layer = self.microBlock(self.layers_configs)
+
+    def forward(self, input):
+        return self.layer(input)
+
+    def microBlock(self, layers_configs):
+        layers = []
+        
+
+
 class MicroBlockA(nn.Module):
     def __init__(self, in_channels, out_channels, expand, kernel_size, stride, act=None):
         super(MicroBlockA, self).__init__()
@@ -37,9 +51,13 @@ class _MicroNet_M2(nn.Module):
         layer1 = [['a', 16, 3, 32, 12, 2]]
 
 
+        self.layer1 = Make_Layers(layer1)
+
     def forward(self, input):
         stem = self.micronetStem(input)
         print('# stem shape : ', stem.shape)
+        s1 = self.layer1(stem)
+        print('# s1 shape : ', s1.shape)
 
 
 def MicroNet(in_channels, classes=1000, varient=0):
