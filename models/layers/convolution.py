@@ -2,6 +2,7 @@ import torch
 from torch import nn
 
 from ..layers.utils import ChannelShuffle
+from ..layers.activation import DynamicSiftMax
 
 def getPadding(kernel_size, mode='same'):
     if mode == 'same':
@@ -107,36 +108,13 @@ class TransitionLayer(nn.Module):
         return output
 
 
-class SepConvBnAct(nn.Module):
-    def __init__(self, in_channels, out_channels, kernel_size, stride, act=None):
-        super(SepConvBnAct, self).__init__()
-        # out_channels = group (if group > 4 else MaxGroupPoolings)
-        act = nn.ReLU6() if act == None else act
-        self.act = act
-        gp1, gp2 = self.div(out_channels)
-        self.conv1 = Conv2dBn(in_channels=in_channels, out_channels=gp1, kernel_size=(kernel_size, 1), stride=(stride, 1),
-                                dilation=1, groups=1, padding_mode='zeros', padding=(kernel_size//2, 0))
-        self.conv2 = Conv2dBn(in_channels=gp1, out_channels=gp1 * gp2, kernel_size=(1, kernel_size), stride=(1, stride),
-                                dilation=1, groups=gp1, padding_mode='zeros', padding=(0, kernel_size//2))
-        self.shuffle = ChannelShuffle(in_channels=gp1)
-    
-    def forward(self, input):
-        output = self.conv1(input)
-        output = self.conv2(output)
-        output = self.shuffle(output)
-        output = self.act(output)
-        return output
-    
-    def div(self, input):
-        return input//2, input//2
-
-
 class DepthSepConvBnAct(nn.Module):
     def __init__(self, in_channels, expand, kernel_size, stride, act=None):
         super(DepthSepConvBnAct, self).__init__()
         # expand = group 
         exp1, exp2 = self.div(expand)
-        act = nn.ReLU6 if act == None else act
+        self.out_channels= in_channels * exp1 * exp2
+        act = nn.ReLU6() if act == None else act
         self.act = act
         self.conv1 = Conv2dBn(in_channels=in_channels, out_channels=in_channels * exp1, kernel_size=(kernel_size, 1), stride=(stride, 1),
                                 dilation=1, groups=in_channels, padding_mode='zeros', padding=(kernel_size//2, 0))
@@ -152,3 +130,6 @@ class DepthSepConvBnAct(nn.Module):
     
     def div(self, input):
         return input//2, input//2
+
+    def get_channels(self):
+        return self.out_channels
