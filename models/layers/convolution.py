@@ -1,6 +1,9 @@
 import torch
 from torch import nn
 
+from ..layers.utils import ChannelShuffle
+from ..layers.activation import DynamicSiftMax
+
 def getPadding(kernel_size, mode='same'):
     if mode == 'same':
         return (int((kernel_size - 1) / 2), (int((kernel_size - 1) / 2)))
@@ -24,15 +27,20 @@ class Conv2dBnAct(nn.Module):
         return output
 
 class Conv2dBn(nn.Module):
-    def __init__(self, in_channels, out_channels, kernel_size, stride=1, dilation=1, groups=1, padding_mode='zeros'):
+    def __init__(self, in_channels, out_channels, kernel_size, stride=1, dilation=1, groups=1, padding_mode='zeros', padding=None):
         super(Conv2dBn, self).__init__()
-        self.padding = getPadding(kernel_size)
+        if padding is not None:
+            padding = padding
+        else:
+            padding = getPadding(kernel_size)
+        self.padding = padding
         self.conv = nn.Conv2d(in_channels, out_channels, kernel_size, stride, self.padding, dilation, groups, False, padding_mode)
         self.bn = nn.BatchNorm2d(out_channels)
 
     def forward(self, input):
         output = self.conv(input)
         return self.bn(output)
+
 
 class DepthwiseConvBnAct(nn.Module):
     def __init__(self, in_channels, kernel_size, stride, dilation=1, padding_mode='zeros', act=None):
@@ -50,9 +58,12 @@ class DepthwiseConvBnAct(nn.Module):
         return self.act(output)
 
 class DepthwiseConvBn(nn.Module):
-    def __init__(self, in_channels, kernel_size, stride, dilation=1, padding_mode='zeros'):
+    def __init__(self, in_channels, kernel_size, stride, dilation=1, padding_mode='zeros', padding=None):
         super(DepthwiseConvBn, self).__init__()
-        self.padding = getPadding(kernel_size)
+        if padding is not None:
+            padding = padding
+        else:
+            padding = getPadding(kernel_size)
         self.conv = nn.Conv2d(in_channels, in_channels, kernel_size, stride, self.padding, dilation, in_channels, False, padding_mode)
         self.bn = nn.BatchNorm2d(in_channels)
 
@@ -60,9 +71,9 @@ class DepthwiseConvBn(nn.Module):
         output = self.conv(input)
         return self.bn(output)
     
-class Dense_Layer(nn.Module):
+class DenseLayer(nn.Module):
     def __init__(self, in_channels, iter_cnt, growth_rate):
-        super(Dense_Layer, self).__init__()
+        super(DenseLayer, self).__init__()
         self.iter = iter_cnt
         self.bn_list = nn.ModuleList([])
         self.conv_list = nn.ModuleList([])
@@ -85,9 +96,9 @@ class Dense_Layer(nn.Module):
         return outputs
 
 
-class Transition_Layer(nn.Module):
+class TransitionLayer(nn.Module):
     def __init__(self, in_channels, out_channels):
-        super(Transition_Layer, self).__init__()
+        super(TransitionLayer, self).__init__()
         self.conv = Conv2dBn(in_channels=in_channels, out_channels=out_channels, kernel_size=1)
         self.avg_pool = nn.AvgPool2d(kernel_size=2, stride=2)
 
@@ -95,3 +106,30 @@ class Transition_Layer(nn.Module):
         output = self.conv(input)
         output = self.avg_pool(output)
         return output
+
+
+class DepthSepConvBnAct(nn.Module):
+    def __init__(self, in_channels, expand, kernel_size, stride, act=None):
+        super(DepthSepConvBnAct, self).__init__()
+        # expand = group 
+        exp1, exp2 = self.div(expand)
+        self.out_channels= in_channels * exp1 * exp2
+        act = nn.ReLU6() if act == None else act
+        self.act = act
+        self.conv1 = Conv2dBn(in_channels=in_channels, out_channels=in_channels * exp1, kernel_size=(kernel_size, 1), stride=(stride, 1),
+                                dilation=1, groups=in_channels, padding_mode='zeros', padding=(kernel_size//2, 0))
+        self.conv2 = Conv2dBn(in_channels=in_channels * exp1, out_channels=in_channels * exp1 * exp2, kernel_size=(1, kernel_size), stride=(1, stride),
+                                dilation=1, groups=in_channels * exp1, padding_mode='zeros', padding=(0, kernel_size//2))
+
+
+    def forward(self, input):
+        output = self.conv1(input)
+        output = self.conv2(output)
+        output = self.act(output)
+        return output
+    
+    def div(self, input):
+        return input//2, input//2
+
+    def get_channels(self):
+        return self.out_channels

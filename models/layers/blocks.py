@@ -1,6 +1,7 @@
 from ..layers.convolution import Conv2dBnAct, DepthwiseConvBnAct
 from ..layers.convolution import Conv2dBn, DepthwiseConvBn
-from ..layers.convolution import Dense_Layer, Transition_Layer
+from ..layers.convolution import DenseLayer, TransitionLayer
+from ..layers.convolution import DepthSepConvBnAct
 from ..layers.attention import SE_Block
 from ..layers.activation import HardSwish, Swish
 
@@ -99,8 +100,8 @@ class Dense_Block(nn.Module):
     def __init__(self, in_channels, iter_cnt, transition, growth_rate=32):
         super(Dense_Block, self).__init__()
         self.transition = transition
-        self.dense_layer = Dense_Layer(in_channels=in_channels, iter_cnt=iter_cnt, growth_rate=growth_rate)
-        self.transition_layaer = Transition_Layer(in_channels=self.calc_channels(in_channels, growth_rate, iter_cnt),
+        self.dense_layer = DenseLayer(in_channels=in_channels, iter_cnt=iter_cnt, growth_rate=growth_rate)
+        self.transition_layaer = TransitionLayer(in_channels=self.calc_channels(in_channels, growth_rate, iter_cnt),
                                                     out_channels=self.calc_channels(in_channels, growth_rate, iter_cnt))
 
     def forward(self, input):
@@ -296,6 +297,58 @@ class MBConv6(nn.Module):
         if self.se:
             output = self.se_block(output)
         output = self.conv2(output)
+        if input.size() != output.size():
+            input = self.identity(input)
+        output = output + input
+        return output
+
+# MicroNet Module
+class MicroBlockA(nn.Module):
+    def __init__(self, in_channels, kernel_size, out_channels, ratio, group, stride, act=None):
+        super(MicroBlockA, self).__init__()
+        self.depthwise = DepthSepConvBnAct(in_channels=in_channels, expand=out_channels, kernel_size=kernel_size, stride=stride, act=act)
+        self.pointwise = Conv2dBnAct(in_channels=self.depthwise.get_channels(), out_channels=out_channels//ratio, kernel_size=1, stride=1, dilation=1,            
+               groups=group[0], padding_mode='zeros', act=act)
+
+        
+    def forward(self, input):
+        output = self.depthwise(input)
+        output = self.pointwise(output)
+        return output
+
+
+class MicroBlockB(nn.Module):
+    def __init__(self, in_channels, kernel_size, out_channels, ratio, group, stride, act=None):
+        super(MicroBlockB, self).__init__()
+        self.depthwise = DepthSepConvBnAct(in_channels=in_channels, expand=out_channels, kernel_size=kernel_size, stride=stride, act=act)
+        self.pointwise1 = Conv2dBnAct(in_channels=self.depthwise.get_channels(), out_channels=out_channels//ratio, kernel_size=1, stride=1, dilation=1,            
+                groups=group[0], padding_mode='zeros', act=act)
+        self.pointwise2 = Conv2dBnAct(in_channels=out_channels//ratio, out_channels=out_channels, kernel_size=1, stride=1, dilation=1,
+                groups=group[1], padding_mode='zeros', act=act)
+        
+    def forward(self, input):
+        output = self.depthwise(input)
+        output = self.pointwise1(output)
+        output = self.pointwise2(output)
+        return output
+
+
+class MicroBlockC(nn.Module):
+    def __init__(self, in_channels, kernel_size, out_channels, ratio, group, stride, act=None):
+        super(MicroBlockC, self).__init__()
+        self.out_channels = out_channels // ratio
+        self.depthwise = DepthwiseConvBnAct(in_channels=in_channels, kernel_size=kernel_size, stride=stride, dilation=1,
+                                            padding_mode='zeros', act=nn.ReLU6())
+        self.pointwise1 = Conv2dBnAct(in_channels=in_channels, out_channels=out_channels//ratio, kernel_size=1, stride=1, dilation=1,            
+                groups=group[0], padding_mode='zeros', act=act)
+        self.pointwise2 = Conv2dBnAct(in_channels=out_channels//ratio, out_channels=out_channels, kernel_size=1, stride=1, dilation=1,
+                groups=group[1], padding_mode='zeros', act=act)
+        self.identity = Conv2dBn(in_channels=in_channels, out_channels=out_channels, kernel_size=1, stride=stride)
+        
+    def forward(self, input):
+        output = self.depthwise(input)
+        output = self.pointwise1(output)
+        output = self.pointwise2(output)
         if input.size() != output.size():
             input = self.identity(input)
         output = output + input

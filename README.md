@@ -50,3 +50,5 @@ Networks
   - [Official Github](https://github.com/facebookresearch/pycls)
 - [EfficientNet: Rethinking Model Scaling for Convolutional Neural Networks](https://arxiv.org/abs/1905.11946v5)
   - [Official Github](https://github.com/lukemelas/EfficientNet-PyTorch)
+- [MicroNet: Improving Image Recognition with Extremely Low FLOPs](https://arxiv.org/abs/2108.05894)
+  - [Official Github](https://github.com/liyunsheng13/micronet)
