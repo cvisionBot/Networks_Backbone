@@ -353,3 +353,26 @@ class MicroBlockC(nn.Module):
             input = self.identity(input)
         output = output + input
         return output
+
+# FrostNet Module
+class FrostBlock(nn.Module):
+    def __init__(self, in_channels, kernel_size, out_channels, EF, RF, stride):
+        super(FrostBlock, self).__init__()
+        self.squeeze_channels = (in_channels // RF)
+        self.expansion_channels = (in_channels + self.squeeze_channels) * EF
+        self.squeeze = Conv2dBnAct(in_channels=in_channels, out_channels=self.squeeze_channels, kernel_size=1, stride=1)
+        self.conv1 = Conv2dBnAct(in_channels=in_channels + self.squeeze_channels, out_channels= self.expansion_channels, kernel_size=1, stride=1)
+        self.depthconv = DepthwiseConvBnAct(in_channels=self.expansion_channels, kernel_size=kernel_size, stride=stride)
+        self.conv2 = Conv2dBn(in_channels=self.expansion_channels, out_channels=out_channels, kernel_size=1, stride=1)
+        self.identity = Conv2dBn(in_channels=in_channels, out_channels=out_channels, kernel_size=1, stride=stride)
+
+    def forward(self, input):
+        output = self.squeeze(input)
+        output = torch.cat([output, input], axis=1)
+        output = self.conv1(output)
+        output = self.depthconv(output)
+        output = self.conv2(output)
+        if input.size() != output.size():
+            input = self.identity(input)
+        output = output + input
+        return output

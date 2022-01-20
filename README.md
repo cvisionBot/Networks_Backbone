@@ -13,12 +13,22 @@ backbones_factory
 ├─ .gitignore
 ├─ __README.md
 ├─ models # Networks 구현
+│  ├─ DenseNet
+│  ├─ EfficientNet
+│  ├─ FrostNet
+│  ├─ GhostNet
+│  ├─ MicroNet
+│  ├─ MNasNet
 │  ├─ MobileNetv1
+│  ├─ MobileNetv2
+│  ├─ MobileNetv3
+│  ├─ RegNet
 │  ├─ ResNet
 │  ├─ ResNeXt
+│  ├─ SENet
 │  └─ layers
 ├─ __init__.py
-├─ initialize.py
+└─ initialize.py
 
 ```
 
@@ -52,3 +62,5 @@ Networks
   - [Official Github](https://github.com/lukemelas/EfficientNet-PyTorch)
 - [MicroNet: Improving Image Recognition with Extremely Low FLOPs](https://arxiv.org/abs/2108.05894)
   - [Official Github](https://github.com/liyunsheng13/micronet)
+- [FrostNet: Towards Quantization-Aware Network Architecture Search](https://arxiv.org/abs/2006.09679)
+  - [Official Github](https://github.com/clovaai/frostnet)
