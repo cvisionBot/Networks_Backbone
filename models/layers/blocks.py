@@ -376,3 +376,33 @@ class FrostBlock(nn.Module):
             input = self.identity(input)
         output = output + input
         return output
+
+# VoVNet
+class OSAModule(nn.Module):
+    def __init__(self, in_channels, conv_channels, layers_per_block, trans_ch):
+        super().__init__()
+        self.in_channels = in_channels
+        self.conv_channels = conv_channels
+        self.layers_per_block = layers_per_block
+        self.trans_ch = trans_ch
+        self.layers = []
+        transition_in_ch = in_channels
+
+        for i in range(layers_per_block):
+            self.layers.append(Conv2dBnAct(
+                self.in_channels, self.conv_channels, 3))
+            self.in_channels = self.conv_channels
+            transition_in_ch += self.conv_channels
+        self.layers = nn.ModuleList(self.layers)
+        self.transition = Conv2dBnAct(transition_in_ch, trans_ch, 1)
+
+    def forward(self, x):
+        outputs = []
+        outputs.append(x)
+        for layer in self.layers:
+            x = layer(x)
+            outputs.append(x)
+
+        x = torch.cat(outputs, dim=1)
+        x = self.transition(x)
+        return x
