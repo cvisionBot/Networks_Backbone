@@ -25,7 +25,9 @@ backbones_factory
 │  ├─ RegNet
 │  ├─ ResNet
 │  ├─ ResNeXt
+│  ├─ ReXNet
 │  ├─ SENet
+│  ├─ VoVNet
 │  └─ layers
 ├─ __init__.py
 └─ initialize.py
@@ -52,6 +54,8 @@ Networks
   - [Torchvision Github](https://github.com/osmr/imgclsmob/blob/68335927ba27f2356093b985bada0bc3989836b1/pytorch/pytorchcv/models/senet.py)
 - [MobileNetv3: Searching for MobileNetv3](https://arxiv.org/abs/1905.02244v5)
   - [Official Github](https://github.com/xiaolai-sqlai/mobilenetv3)
+- [VoVNet: An Energy and GPU-Computation Efficient Backbone Network for Real-Time Object Detection](https://arxiv.org/abs/1904.09730v1)
+  - [Torchvision Github](https://github.com/osmr/imgclsmob/blob/3197ca90e0270c01e553e4091fc37104718ad822/pytorch/pytorchcv/models/vovnet.py)
 - [MnasNet: Platform-Aware Neural Architecture Search for Mobile](https://arxiv.org/abs/1807.11626v3)
   - [Torchvision Github](https://github.com/osmr/imgclsmob/blob/c03fa67de3c9e454e9b6d35fe9cbb6b15c28fda7/pytorch/pytorchcv/models/mnasnet.py)
 - [GhostNet: More Features from Cheap Operations](https://arxiv.org/abs/1911.11907v2)
@@ -64,3 +68,5 @@ Networks
   - [Official Github](https://github.com/liyunsheng13/micronet)
 - [FrostNet: Towards Quantization-Aware Network Architecture Search](https://arxiv.org/abs/2006.09679)
   - [Official Github](https://github.com/clovaai/frostnet)
+- [ReXNet: Rethinking Channel Dimensions for Efficient Model Design](https://arxiv.org/abs/2007.00992)
+  - [Official Github](https://github.com/clovaai/rexnet)

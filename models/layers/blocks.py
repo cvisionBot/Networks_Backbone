@@ -3,7 +3,7 @@ from ..layers.convolution import Conv2dBn, DepthwiseConvBn
 from ..layers.convolution import DenseLayer, TransitionLayer
 from ..layers.convolution import DepthSepConvBnAct
 from ..layers.attention import SE_Block
-from ..layers.activation import HardSwish, Swish
+from ..layers.activation import HardSwish, Swish, SiLU
 
 import math
 import torch
@@ -406,3 +406,35 @@ class OSAModule(nn.Module):
         x = torch.cat(outputs, dim=1)
         x = self.transition(x)
         return x
+
+# ReXNet (rebuild inverted blocks)
+class RexBlock(nn.Module): 
+    def __init__(self, in_channels, kernel_size, out_channels, exp, stride, SE=False):
+        super(RexBlock, self).__init__()
+        if exp == 0:
+            exp = 1
+        self.stride = stride
+        self.use_se = SE
+
+        self.conv1 = Conv2dBnAct(in_channels=in_channels,out_channels=in_channels * exp, kernel_size=1, stride=1, dilation=1, 
+                                    groups=1, padding_mode='zeros', act=SiLU())
+        self.dconv = DepthwiseConvBn(in_channels=in_channels * exp, kernel_size=kernel_size, stride=self.stride,
+                                    dilation=1, padding_mode='zeros')
+        self.conv2 = Conv2dBnAct(in_channels=in_channels * exp, out_channels=out_channels, kernel_size=1, stride=1, dilation=1,
+                                    groups=1, padding_mode='zeros', act=nn.ReLU6())
+        self.se = SE_Block(in_channels=in_channels * exp, reduction_ratio=12, act=nn.ReLU6())
+        self.identity = nn.Conv2d(in_channels=in_channels, out_channels=out_channels, kernel_size=1, stride=stride)
+        
+
+    def forward(self, input):
+        output = self.conv1(input)
+        output = self.dconv(output)
+        if self.use_se:
+            se = self.se(output)
+            output = self.conv2(output)
+        else:
+            output = self.conv2(output)
+        if self.stride == 1:
+            input = self.identity(input)
+            output = input + output        
+        return output

@@ -1,6 +1,7 @@
 import torch
 from torch import nn
 
+
 class HardSwish(nn.Module):
     def __init__(self):
         super(HardSwish, self).__init__()
@@ -8,6 +9,7 @@ class HardSwish(nn.Module):
 
     def forward(self, x):
         return x * self.relu6(x+3) / 6
+
 
 class Swish(nn.Module):
     def __init__(self):
@@ -17,6 +19,7 @@ class Swish(nn.Module):
     def forward(self, x):
         return x * self.sigmoid(x)
 
+
 class HardSigmoid(nn.Module):
     def __init__(self, inplace=True, h_max = 1):
         super(HardSigmoid, self).__init__()
@@ -25,6 +28,18 @@ class HardSigmoid(nn.Module):
 
     def forward(self, x):
         return self.relu6(x + 3) * self.h_max
+
+
+class SiLU(nn.Module):
+    def __init__(self, inplace=True):
+        super(SiLU, self).__init__()
+        self.inplace = inplace
+    '''
+        not memory efficient mode
+    '''
+    def forward(self, x):
+        return x.mul_(x.sigmoid()) if self.inplace else x.mul(x.sigmoid())
+
 
 class DynamicSiftMax(nn.Module):
     def __init__(self, in_channels, out_channels):
