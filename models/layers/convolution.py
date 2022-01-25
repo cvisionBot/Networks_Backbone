@@ -64,6 +64,7 @@ class DepthwiseConvBn(nn.Module):
             padding = padding
         else:
             padding = getPadding(kernel_size)
+        self.padding = padding
         self.conv = nn.Conv2d(in_channels, in_channels, kernel_size, stride, self.padding, dilation, in_channels, False, padding_mode)
         self.bn = nn.BatchNorm2d(in_channels)
 
